@@ -1,10 +1,12 @@
 from types import SimpleNamespace as Namespace
 from PIL import Image
+from pyvalid import accepts
+
 
 def alive(unchecked_method):
     '''
     Decorador auxiliar para los métodos de la clase EpuckInterface. Sirve para añadir código de comprobación al inicio de estas
-    funciones para lanzar una excepción en caso de que el
+    funciones para lanzar una excepción en caso de que el e-puck no esté activo
     '''
     def checked_method(self, *args, **kwargs):
         if not self.is_alive():
@@ -32,6 +34,9 @@ class EPuckInterface:
     Las implementaciones de esta interfaz son: Epuck y VirtualEpuck
     '''
 
+    class Validators:
+        def validate_speed(self, speed):
+            pass
 
 
     def __init__(self, *args, **kwargs):
@@ -199,6 +204,7 @@ class EPuckInterface:
         También se puede usar la propiedad left_motor.speed para establecer la velocidad
         de este motor. e.g: epuck.left_motor.speed = 10
         :param speed: Velocidad en radianes / segundo
+        Debe estar en el rango [0, epuck_constraints.max_motor_speed]
         :return:
         '''
         raise NotImplementedError()
@@ -210,6 +216,7 @@ class EPuckInterface:
         También se puede usar la propiedad right_motor.speed para establecer la velocidad
         de este motor. e.g: epuck.right_motor.speed = 10
         :param speed: Velocidad en radianes / segundo
+        Debe estar en el rango [0, epuck_constraints.max_motor_speed]
         :return:
         '''
         raise NotImplementedError()
