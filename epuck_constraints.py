@@ -14,5 +14,5 @@ wheels_radius = wheels_diameter / 2
 
 # Máxima velocidad ángular de los motores en radianes / segundo
 from math import pi
-max_motor_speed = 4 * pi
+max_motor_speed = 2 * pi
 
