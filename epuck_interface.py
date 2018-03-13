@@ -52,7 +52,7 @@ class EPuckInterface:
                 epuck.set_left_motor_speed(amount)
 
             def __str__(self):
-                return 'Left motor of the e-puck robot'
+                return 'Left motor'
 
             def __repr__(self):
                 return self.__str__()
@@ -67,7 +67,7 @@ class EPuckInterface:
                 epuck.set_right_motor_speed(amount)
 
             def __str__(self):
-                return 'Right motor of the e-puck robot'
+                return 'Right motor'
 
             def __repr__(self):
                 return self.__str__()
@@ -81,7 +81,7 @@ class EPuckInterface:
                 return epuck.get_prox_sensor_value(self.index)
 
             def __str__(self):
-                return 'Proximity sensor of the e-puck robot (IR{})'.format(self.index)
+                return '{}th proximity sensor'.format(self.index + 1)
 
             def __repr__(self):
                 return self.__str__()
@@ -91,10 +91,43 @@ class EPuckInterface:
                 return epuck.get_vision_sensor_image(*args, **kwargs)
 
             def __str__(self):
-                return 'Vision sensor of the e-puck robot'
+                return 'Vision sensor'
 
             def __repr__(self):
                 return self.__str__()
+
+        class Led:
+            def __init__(self, index):
+                self.index = index
+
+            @property
+            def state(self):
+                return epuck.get_led_state(self.index)
+
+            @state.setter
+            def state(self, state):
+                epuck.set_led_state(self.index, state)
+
+            def __str__(self):
+                return '{}th led: {}'.format(self.index + 1, 'enabled' if self.state else 'disabled')
+
+            def __repr__(self):
+                return self.__str__()
+
+        class FloorSensor:
+            def __init__(self, index):
+                self.index = index
+
+            @property
+            def value(self):
+                return epuck.get_floor_sensor(self.index)
+
+            def __str__(self):
+                return '{} floor sensor'.format(self.index)
+
+            def __repr__(self):
+                return self.__str__()
+
 
         '''
         Constructor de clase. Inicializa la instancia.
@@ -109,6 +142,8 @@ class EPuckInterface:
 
         self.vision_sensor = VisionSensor()
         self.camera = self.vision_sensor
+        self.leds = [Led(index) for index in range(0, 8)]
+        self.floor_sensors = [FloorSensor(index) for index in ['left', 'middle', 'right']]
 
         self.alive = False
         self.args = args
@@ -198,6 +233,7 @@ class EPuckInterface:
         raise NotImplementedError()
 
     @alive
+    @accepts(Validators.validate_speed)
     def set_left_motor_speed(self, speed):
         '''
         Establece la velocidad del motor izquierdo del robot.
@@ -232,8 +268,7 @@ class EPuckInterface:
         Muestrea un sensor de proximidad.
         :param index: Es el índice del sensor de proximidad, 0 para el sensor IR0, 1 para IR1, hasta 7 para
         IR7
-        :return: Devuelve el valor actual del sensor de proximidad en metros (Aproximación de la distancia
-        al obstáculo detectado en metros)
+        :return: Devuelve el valor actual del sensor de proximidad.
         '''
         raise NotImplementedError()
 
@@ -265,5 +300,45 @@ class EPuckInterface:
 
         :return: Devuelve una imágen PIL creada a partir de la información extraída por
         el sensor.
+        '''
+        raise NotImplementedError()
+
+
+    '''
+    Métodos para muestrear los sensores de suelo
+    '''
+    @alive
+    def get_floor_sensor(self, index):
+        '''
+        Muestra un sensor de suelo del robot
+        :param index: Es el índice del sensor del suelo a muestrear. Puede tener los siguientes valores:
+        'left', 'middle', 'right'
+        :return:  Devuelve el valor actual del sensor de suelo cuyo índice es el indicado.
+        '''
+        raise NotImplementedError()
+
+
+
+
+    '''
+    Métodos para activar/desactivar los leds
+    '''
+    @alive
+    def set_led_state(self, index, state):
+        '''
+        Establece el estado actual de un led del robot.
+        :param index: Es el índice del led (en el rango [0, 8))
+        :param state: Es un valor booleano que indicará el nuevo estado del led.
+        :return:
+        '''
+        raise NotImplementedError()
+
+
+    @alive
+    def get_led_state(self, index):
+        '''
+        Consulta el estado de un led
+        :param index: Es el índice del led (en el rango [0, 8))
+        :return: Devuelve un valor booleano indicando el estado actual del led (Activado/Desactivado)
         '''
         raise NotImplementedError()
