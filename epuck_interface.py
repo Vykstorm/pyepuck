@@ -1,6 +1,8 @@
 from types import SimpleNamespace as Namespace
 from PIL import Image
 from pyvalid import accepts
+from pyvalid.validators import is_validator
+import epuck_constraints
 
 
 def alive(unchecked_method):
@@ -34,22 +36,49 @@ class EPuckInterface:
     Las implementaciones de esta interfaz son: Epuck y VirtualEpuck
     '''
 
+
     class Validators:
-        def validate_speed(self, speed):
-            pass
+        '''
+        Clase auxiliar para validar parámetros de algunos métodos de la clase EPuckInterface.
+        '''
+        @staticmethod
+        @is_validator
+        def validate_speed(speed):
+            '''
+            Valida el valor para establecer la velocidad de los motores en rads / seg
+            :param speed:
+            :return:
+            '''
+            return abs(speed) <= epuck_constraints.max_motor_speed
+
+        @staticmethod
+        @is_validator
+        def validate_image_size(size):
+            '''
+            Valida el valor que establece las dimensiones de la imágen devuelta por el método
+            _get_vision_sensor_image
+            :param size:
+            :return:
+            '''
+            return isinstance(size, tuple) and len(size) == 2
+
 
 
     def __init__(self, *args, **kwargs):
         epuck = self
 
         class LeftMotor:
+            def __init__(self):
+                self._speed = 0
+
             @property
             def speed(self):
-                return epuck.get_left_motor_speed()
+                return self._speed
 
             @speed.setter
             def speed(self, amount):
-                epuck.set_left_motor_speed(amount)
+                epuck._set_left_motor_speed(amount)
+                self._speed = amount
 
             def __str__(self):
                 return 'Left motor. Speed: {} rads / sec'.format(self.speed)
@@ -58,13 +87,17 @@ class EPuckInterface:
                 return self.__str__()
 
         class RightMotor:
+            def __init__(self):
+                self._speed = 0
+
             @property
             def speed(self):
-                return epuck.get_right_motor_speed()
+                return self._speed
 
             @speed.setter
             def speed(self, amount):
-                epuck.set_right_motor_speed(amount)
+                epuck._set_right_motor_speed(amount)
+                self._speed = amount
 
             def __str__(self):
                 return 'Right motor. Speed: {} rads / sec'.format(self.speed)
@@ -78,7 +111,7 @@ class EPuckInterface:
 
             @property
             def value(self):
-                return epuck.get_prox_sensor_value(self.index)
+                return epuck._get_prox_sensor_value(self.index)
 
             def __str__(self):
                 return '{}th proximity sensor. Value: {}'.format(self.index + 1, self.value)
@@ -88,7 +121,7 @@ class EPuckInterface:
 
         class VisionSensor:
             def get_image(self, *args, **kwargs):
-                return epuck.get_vision_sensor_image(*args, **kwargs)
+                return epuck._get_vision_sensor_image(*args, **kwargs)
 
             def __str__(self):
                 return 'Vision sensor'
@@ -99,14 +132,16 @@ class EPuckInterface:
         class Led:
             def __init__(self, index):
                 self.index = index
+                self._state = False
 
             @property
             def state(self):
-                return epuck.get_led_state(self.index)
+                return self._state
 
             @state.setter
             def state(self, state):
-                epuck.set_led_state(self.index, state)
+                epuck._set_led_state(self.index, state)
+                self._state = state
 
             def __str__(self):
                 return '{}th led. State: {}'.format(self.index + 1, 'enabled' if self.state else 'disabled')
@@ -120,7 +155,7 @@ class EPuckInterface:
 
             @property
             def value(self):
-                return epuck.get_floor_sensor(self.index)
+                return epuck._get_floor_sensor(self.index)
 
             def __str__(self):
                 return '{} floor sensor. Value: {}'.format(self.index, self.value)
@@ -211,51 +246,36 @@ class EPuckInterface:
         Este método se encarga de limpiar todos los recursos utilizados.
         :return:
         '''
-        raise NotImplementedError()
+        pass
 
-
-    '''
-    Métodos para obtener / establecer la velocidad de los motores.
-    '''
 
     @alive
-    def get_left_motor_speed(self):
-        '''
-        :return: Devuelve la velocidad actual del motor izquierdo en radianes
-        '''
-        raise NotImplementedError()
-
-    @alive
-    def get_right_motor_speed(self):
-        '''
-        :return: Devuelve la velocidad actual del motor derecho en radianes
-        '''
-        raise NotImplementedError()
-
-    @alive
-    @accepts(Validators.validate_speed)
-    def set_left_motor_speed(self, speed):
+    @accepts(object, Validators.validate_speed)
+    def _set_left_motor_speed(self, speed):
         '''
         Establece la velocidad del motor izquierdo del robot.
         También se puede usar la propiedad left_motor.speed para establecer la velocidad
         de este motor. e.g: epuck.left_motor.speed = 10
+
         :param speed: Velocidad en radianes / segundo
         Debe estar en el rango [0, epuck_constraints.max_motor_speed]
         :return:
         '''
-        raise NotImplementedError()
+        pass
 
     @alive
-    def set_right_motor_speed(self, speed):
+    @accepts(object, Validators.validate_speed)
+    def _set_right_motor_speed(self, speed):
         '''
         Establece la velocidad del motor derecho del robot.
         También se puede usar la propiedad right_motor.speed para establecer la velocidad
         de este motor. e.g: epuck.right_motor.speed = 10
+
         :param speed: Velocidad en radianes / segundo
         Debe estar en el rango [0, epuck_constraints.max_motor_speed]
         :return:
         '''
-        raise NotImplementedError()
+        pass
 
 
 
@@ -263,14 +283,15 @@ class EPuckInterface:
     Métodos para muestrar los sensores de proximidad.
     '''
     @alive
-    def get_prox_sensor_value(self, index):
+    @accepts(object, range(0, 8))
+    def _get_prox_sensor_value(self, index):
         '''
         Muestrea un sensor de proximidad.
         :param index: Es el índice del sensor de proximidad, 0 para el sensor IR0, 1 para IR1, hasta 7 para
         IR7
         :return: Devuelve el valor actual del sensor de proximidad.
         '''
-        raise NotImplementedError()
+        pass
 
 
 
@@ -279,7 +300,9 @@ class EPuckInterface:
     Métodos para muestrear los sensores de visión.
     '''
     @alive
-    def get_vision_sensor_image(self, mode = 'RGB', size = (40, 40), resample = Image.NEAREST):
+    @accepts(object, ('RGB', '1', 'L', 'P'), Validators.validate_image_size,
+             (Image.BOX, Image.BILINEAR, Image.BICUBIC, Image.HAMMING, Image.LANCZOS, Image.NEAREST))
+    def _get_vision_sensor_image(self, mode ='RGB', size = (40, 40), resample = Image.NEAREST):
         '''
         Muestrea el sensor de visión.
         :param mode: Puede ser el modo de la imágen (definidos por la librería PIL). Puede ser RGB, 1, L, P, ...
@@ -301,21 +324,22 @@ class EPuckInterface:
         :return: Devuelve una imágen PIL creada a partir de la información extraída por
         el sensor.
         '''
-        raise NotImplementedError()
+        pass
 
 
     '''
     Métodos para muestrear los sensores de suelo
     '''
     @alive
-    def get_floor_sensor(self, index):
+    @accepts(object, ('left', 'right', 'middle'))
+    def _get_floor_sensor(self, index):
         '''
         Muestra un sensor de suelo del robot
         :param index: Es el índice del sensor del suelo a muestrear. Puede tener los siguientes valores:
         'left', 'middle', 'right'
         :return:  Devuelve el valor actual del sensor de suelo cuyo índice es el indicado.
         '''
-        raise NotImplementedError()
+        pass
 
 
 
@@ -324,21 +348,13 @@ class EPuckInterface:
     Métodos para activar/desactivar los leds
     '''
     @alive
-    def set_led_state(self, index, state):
+    @accepts(object, range(0, 8), bool)
+    def _set_led_state(self, index, state):
         '''
         Establece el estado actual de un led del robot.
         :param index: Es el índice del led (en el rango [0, 8))
         :param state: Es un valor booleano que indicará el nuevo estado del led.
         :return:
         '''
-        raise NotImplementedError()
+        pass
 
-
-    @alive
-    def get_led_state(self, index):
-        '''
-        Consulta el estado de un led
-        :param index: Es el índice del led (en el rango [0, 8))
-        :return: Devuelve un valor booleano indicando el estado actual del led (Activado/Desactivado)
-        '''
-        raise NotImplementedError()

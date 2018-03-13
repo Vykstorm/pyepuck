@@ -35,8 +35,8 @@ class VRepEPuck(EPuckInterface):
         simulation.resume()
 
 
-    @alive
     def close(self):
+        super().close()
         self.simulation.stop()
         self.client.close()
 
@@ -44,44 +44,51 @@ class VRepEPuck(EPuckInterface):
     '''
     Implementaciones de los métodos para manejar los motores del robot
     '''
-
-    @alive
-    def get_left_motor_speed(self):
-        raise NotImplementedError()
-
-    @alive
-    def get_right_motor_speed(self):
-        raise NotImplementedError()
-
-    @alive
-    def set_left_motor_speed(self, speed):
+    def _set_left_motor_speed(self, speed):
+        super()._set_left_motor_speed(speed)
         self.handler.left_motor.speed = speed
 
-    @alive
-    def set_right_motor_speed(self, speed):
+
+    def _set_right_motor_speed(self, speed):
+        super()._set_right_motor_speed(speed)
         self.handler.right_motor.speed = speed
 
 
     '''
     Implementación del método para muestrar los sensores de proximidad
     '''
-    @alive
-    def get_prox_sensor_value(self, index):
+    def _get_prox_sensor_value(self, index):
+        super()._get_prox_sensor_value(index)
         value = self.handler.proximity_sensors[index].value
         return value
 
     '''
     Implementación del método para muestrear el sensor de visión
     '''
-    @alive
-    def get_vision_sensor_image(self, mode = 'RGB', size = (40, 40), resample = Image.NEAREST):
+    def _get_vision_sensor_image(self, mode ='RGB', size = (40, 40), resample = Image.NEAREST):
+        super()._get_vision_sensor_image(mode, size, resample)
         image = self.handler.camera.get_image(mode = mode, size = size, resample = resample)
         return image
 
+    '''
+    Métodos para muestrear los sensores del suelo
+    '''
+    def _get_floor_sensor(self, index):
+        super()._get_floor_sensor(index)
+        # TODO
+        raise NotImplementedError()
+
+    '''
+    Métodos para activar/desactivar los leds
+    '''
+    def _set_led_state(self, index, state):
+        super()._set_led_state(index, state)
+        # TODO
+        raise NotImplementedError()
 
 
 # Test unitario de este módulo. Debe ejecutarse el simulador V-rep en localhost. El servicio de API
-# remota debe estar disponible en el puerto por defecto (19997)
+# remota debe estarvalue disponible en el puerto por defecto (19997)
 if __name__ == '__main__':
     from time import sleep
     from math import pi
