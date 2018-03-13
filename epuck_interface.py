@@ -52,7 +52,7 @@ class EPuckInterface:
                 epuck.set_left_motor_speed(amount)
 
             def __str__(self):
-                return 'Left motor'
+                return 'Left motor. Speed: {} rads / sec'.format(self.speed)
 
             def __repr__(self):
                 return self.__str__()
@@ -67,7 +67,7 @@ class EPuckInterface:
                 epuck.set_right_motor_speed(amount)
 
             def __str__(self):
-                return 'Right motor'
+                return 'Right motor. Speed: {} rads / sec'.format(self.speed)
 
             def __repr__(self):
                 return self.__str__()
@@ -81,7 +81,7 @@ class EPuckInterface:
                 return epuck.get_prox_sensor_value(self.index)
 
             def __str__(self):
-                return '{}th proximity sensor'.format(self.index + 1)
+                return '{}th proximity sensor. Value: {}'.format(self.index + 1, self.value)
 
             def __repr__(self):
                 return self.__str__()
@@ -109,7 +109,7 @@ class EPuckInterface:
                 epuck.set_led_state(self.index, state)
 
             def __str__(self):
-                return '{}th led: {}'.format(self.index + 1, 'enabled' if self.state else 'disabled')
+                return '{}th led. State: {}'.format(self.index + 1, 'enabled' if self.state else 'disabled')
 
             def __repr__(self):
                 return self.__str__()
@@ -123,7 +123,7 @@ class EPuckInterface:
                 return epuck.get_floor_sensor(self.index)
 
             def __str__(self):
-                return '{} floor sensor'.format(self.index)
+                return '{} floor sensor. Value: {}'.format(self.index, self.value)
 
             def __repr__(self):
                 return self.__str__()
