@@ -283,7 +283,7 @@ class EPuckInterface:
     Métodos para muestrar los sensores de proximidad.
     '''
     @alive
-    @accepts(object, range(0, 8))
+    @accepts(object, tuple(range(0, 8)))
     def _get_prox_sensor_value(self, index):
         '''
         Muestrea un sensor de proximidad.
@@ -348,7 +348,7 @@ class EPuckInterface:
     Métodos para activar/desactivar los leds
     '''
     @alive
-    @accepts(object, range(0, 8), bool)
+    @accepts(object, tuple(range(0, 8)), bool)
     def _set_led_state(self, index, state):
         '''
         Establece el estado actual de un led del robot.
