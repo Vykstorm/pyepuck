@@ -2,13 +2,14 @@
 from epuck_interface import EPuckInterface, alive
 from PIL import Image
 from vrep import Client as VrepClient
-
+from pyvalid import accepts
 
 class VRepEPuck(EPuckInterface):
     '''
     Robot e-puck virtual que se ejecuta en el simulador V-rep que implementa el interfaz
     EPuckInterface
     '''
+    @accepts(object, str, int)
     def __init__(self, address = '127.0.0.1:19997', comm_thread_cycle = 5):
         '''
         :param address: Es la dirección IP del servidor que implementa la API V-Rep. Por defecto
@@ -99,8 +100,9 @@ if __name__ == '__main__':
         epuck.left_motor.speed = pi / 2
         epuck.right_motor.speed = pi / 2
         sleep(2)
+
         for prox_sensor in epuck.proximity_sensors:
-            print('Value of {}: {}'.format(prox_sensor, prox_sensor.value))
+            print(prox_sensor)
 
         image = epuck.camera.get_image(mode = 'RGB', size = (400, 400))
         image.show()
