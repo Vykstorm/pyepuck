@@ -1,5 +1,5 @@
 
-from epuck_interface import EPuckInterface, alive
+from epuck_interface import EPuckInterface
 from PIL import Image
 from vrep import Client as VrepClient
 from pyvalid import accepts
