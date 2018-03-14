@@ -187,7 +187,7 @@ class EPuckInterface:
 
 
     @not_alive
-    def run(self):
+    def live(self):
         '''
         Ejecuta el robot. Después de invocar este método, is_alive() devolverá
         True.
@@ -205,7 +205,7 @@ class EPuckInterface:
             raise Exception('Failed to initialize e-puck robot: {}'.format(e))
 
     @alive
-    def destroy(self):
+    def kill(self):
         '''
         Después de invocar este método, la instancia queda inutilizable y is_alive() devolverá False.
         Este método llama internamente a close()
@@ -224,6 +224,31 @@ class EPuckInterface:
         '''
         return self.alive
 
+    @not_alive
+    def __enter__(self):
+        '''
+        Puede utilizarse el siguiente código:
+        e.g:
+        with EPuckInterface(...) as epuck:
+            <some code>
+        esto será equivalente a ejecutar las siguientes instrucciones:
+        epuck = EPuckInterface(...)
+        epuck.live()
+        try:
+            <some code>
+        finally:
+            if epuck.is_alive():
+                epuck.kill()
+
+        :return:
+        '''
+
+        self.live()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.is_alive():
+            self.kill()
 
     '''
     Métodos para inicializar / limpiar los recursos utilizados por el robot
