@@ -64,7 +64,7 @@ class EPuckInterface:
 
 
 
-    def __init__(self, asynch_update = True, *args, **kwargs):
+    def __init__(self, asynch_update, *args, **kwargs):
         '''
         Inicializa esta instancia.
         :param asynch_update: Indica si esta clase se engargará de mantener actualizados los valores
