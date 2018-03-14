@@ -1,7 +1,7 @@
 
 from epuck_interface import EPuckInterface
 from PIL import Image
-from vrep import Client as VrepClient
+from vrep import Client as VRepClient
 from pyvalid import accepts
 
 class VRepEPuck(EPuckInterface):
@@ -27,7 +27,7 @@ class VRepEPuck(EPuckInterface):
     '''
 
     def init(self, address, comm_thread_cycle):
-        self.client = VrepClient(address, comm_thread_cycle)
+        self.client = VRepClient(address, comm_thread_cycle)
         self.simulation = self.client.simulation
 
         simulation = self.simulation
