@@ -69,3 +69,12 @@ class EPuck(EPuckInterface):
         # TODO
         raise NotImplementedError()
 
+
+    '''
+    Actualiza la información de los sensores y hace efectivos los cambios en los actuadores
+    (motores / leds)
+    '''
+    def update(self):
+        super().update()
+        # TODO
+        raise NotImplementedError()

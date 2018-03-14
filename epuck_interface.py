@@ -33,7 +33,7 @@ class EPuckInterface:
     Provee métodos y atributos para muestrar los sensores (de proximidad y de visión),
     establecer la velodidad de los motores, ...
 
-    Las implementaciones de esta interfaz son: Epuck y VirtualEpuck
+    Las implementaciones de esta interfaz son: Epuck y VrepEPuck
     '''
 
 
@@ -64,7 +64,17 @@ class EPuckInterface:
 
 
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, asynch_update = True, *args, **kwargs):
+        '''
+        Inicializa esta instancia.
+        :param asynch_update: Indica si esta clase se engargará de mantener actualizados los valores
+        de los sensores y de modificar los parámetros de los actuadores de forma asíncrona o no.
+        Si este parámetro es False, deberá invocarse el método update() para obtener información actualizada
+        de los sensores del dispositivo y para hacer efectivos los cambios en los parámetros de los
+        actuadores.
+        :param args:
+        :param kwargs:
+        '''
         epuck = self
 
         class LeftMotor:
@@ -384,17 +394,28 @@ class EPuckInterface:
         pass
 
 
+    @alive
+    def update(self):
+        '''
+        Después de invocar este método, la información de los sensores se actualizará.
+        Además, los cambios en los parámetros de los actuadores se harán efectivos.
+        Solo es necesario implementar este método en el caso de que se haya establecido el
+        parámetro async_update a False en el constructor de clase.
+        :return:
+        '''
+        pass
 
 
 
-class EpuckControllerInterface:
+
+class EPuckController:
     '''
     Representa un controlador para el robot e-puck.
     '''
     def __init__(self, epuck):
         '''
         Inicializa la instancia
-        :param epuck: Es una instancia de la clase EPuckInterface
+        :param epuck: Es una instancia de una subclase de EPuckInterface
         '''
         self.epuck = epuck
 
@@ -402,7 +423,7 @@ class EpuckControllerInterface:
         '''
         Lanza el controlador. Inicializa el robot y el controlador, ejecuta el método step() de esta misma clase
         de forma indefinida hasta que lanza la excepción StopIteration y por último, cierra la conexión
-        con y libera los recursos utilizados del robot.
+        y libera los recursos utilizados del robot.
         :return:
         '''
         with self.epuck:
@@ -424,6 +445,7 @@ class EpuckControllerInterface:
         - Fase de actuación: Se llamada al método act()
         :return:
         '''
+        self.epuck.update()
         self.sense()
         self.think()
         self.act()
