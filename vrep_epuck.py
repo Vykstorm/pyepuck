@@ -3,6 +3,9 @@ from epuck_interface import EPuckInterface
 from PIL import Image
 from vrep import Client as VRepClient
 from pyvalid import accepts
+from random import random
+from math import pi
+import epuck_constraints
 
 class VRepEPuck(EPuckInterface):
     '''
@@ -19,7 +22,7 @@ class VRepEPuck(EPuckInterface):
         red a la API remota. Reducir esta cantidad mejorará el tiempo de respuesta y la sincronización entre
         cliente y la API remota. Por defecto se establece un valor de 5ms
         '''
-        super().__init__(address, comm_thread_cycle)
+        super().__init__(True, address, comm_thread_cycle)
 
 
     '''
@@ -61,7 +64,8 @@ class VRepEPuck(EPuckInterface):
     def _get_prox_sensor_value(self, index):
         super()._get_prox_sensor_value(index)
         value = self.handler.proximity_sensors[index].value
-        return value
+        #return value
+        return self._distance_to_ir_measurement(value)
 
     '''
     Implementación del método para muestrear el sensor de visión
@@ -88,13 +92,34 @@ class VRepEPuck(EPuckInterface):
         raise NotImplementedError()
 
 
+    def _distance_to_ir_measurement(self, distance):
+        '''
+        Método auxiliar para simular la medición de uno de los sensores IR
+        de proximidad del e-epuck cuando hay un obstáculo a la distancia que se indica como parámetro.
+        Se introduce ruido en la medición en función de la velocidad lineal del robot e-puck
+        '''
+        # TODO
+        # Aproximación. Modificar esto ->
+        p = pi * epuck_constraints.wheels_diameter
+        distance = min(distance, p) / p
+        measure = (distance ** (1 / 3))
+
+        # Añadimos ruido gaussiano
+        measure += random() * .1 - .05
+
+        measure *= 3000
+
+        return measure
+
+
+
 # Test unitario de este módulo. Debe ejecutarse el simulador V-rep en localhost. El servicio de API
 # remota debe estarvalue disponible en el puerto por defecto (19997)
 if __name__ == '__main__':
     from time import sleep
     from math import pi
     epuck = VRepEPuck(address = '127.0.0.1')
-    epuck.run()
+    epuck.live()
 
     try:
         epuck.left_motor.speed = pi / 2
@@ -107,4 +132,4 @@ if __name__ == '__main__':
         image = epuck.camera.get_image(mode = 'RGB', size = (400, 400))
         image.show()
     finally:
-        epuck.destroy()
+        epuck.kill()
