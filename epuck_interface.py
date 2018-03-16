@@ -115,30 +115,6 @@ class EPuckInterface:
             def __repr__(self):
                 return self.__str__()
 
-        class ProximitySensor:
-            def __init__(self, index):
-                self.index = index
-
-            @property
-            def value(self):
-                return epuck._get_prox_sensor_value(self.index)
-
-            def __str__(self):
-                return '{}th proximity sensor. Value: {}'.format(self.index + 1, self.value)
-
-            def __repr__(self):
-                return self.__str__()
-
-        class VisionSensor:
-            def get_image(self, *args, **kwargs):
-                return epuck._get_vision_sensor_image(*args, **kwargs)
-
-            def __str__(self):
-                return 'Vision sensor'
-
-            def __repr__(self):
-                return self.__str__()
-
         class Led:
             def __init__(self, index):
                 self.index = index
@@ -159,30 +135,104 @@ class EPuckInterface:
             def __repr__(self):
                 return self.__str__()
 
-        class FloorSensor:
-            def __init__(self, index):
-                self.index = index
+
+        class Sensor:
+            def __init__(self):
+                self.enabled = False
+
+            def is_enabled(self):
+                return self.enabled
+
+            def enable(self):
+                self.enabled = True
+
+            def disable(self):
+                self.enabled = False
+
+            def _get_value(self):
+                raise NotImplementedError()
 
             @property
             def value(self):
+                if not self.is_enabled():
+                    raise Exception('{} is not enabled. Enable it in order to get sensor data'.format(self.__class__.__name__))
+                return self._get_value()
+
+            def __repr__(self):
+                return self.__str__()
+
+
+
+        class ProximitySensor(Sensor):
+            def __init__(self, index):
+                super().__init__()
+                self.index = index
+
+            def _get_value(self):
+                return epuck._get_prox_sensor_value(self.index)
+
+            def __str__(self):
+                return '{}th proximity sensor. Value: {}'.format(self.index + 1, self.value)
+
+
+
+        class FloorSensor(Sensor):
+            def __init__(self, index):
+                super().__init__()
+                self.index = index
+
+            def _get_value(self):
                 return epuck._get_floor_sensor(self.index)
 
             def __str__(self):
                 return '{} floor sensor. Value: {}'.format(self.index, self.value)
 
-            def __repr__(self):
-                return self.__str__()
 
-        class LightSensor:
-            @property
-            def value(self):
+        class LightSensor(Sensor):
+            def __init__(self):
+                super().__init__()
+
+            def _get_value(self):
                 return epuck._get_light_sensor()
 
             def __str__(self):
                 return 'Light sensor. Value: {}'.format(self.value)
 
-            def __repr__(self):
-                return self.__str__()
+
+
+        class VisionSensor(Sensor):
+            def __init__(self):
+                super().__init__()
+
+            def _get_value(self):
+                return epuck._get_vision_sensor_image()
+
+            @property
+            def image(self):
+                return self.value
+
+            @property
+            def mode(self):
+                return epuck._vision_sensor_params[0]
+
+            @property
+            def size(self):
+                return epuck._vision_sensor_params[1]
+
+            @property
+            def zoom(self):
+                return epuck._vision_sensor_params[2]
+
+            @property
+            def resample(self):
+                return epuck._vision_sensor_params[3]
+
+
+            def set_params(self, *args, **kwargs):
+                epuck._set_vision_sensor_params(*args, **kwargs)
+
+            def __str__(self):
+                return 'Vision sensor. Mode: {}, Dimensions: {}, Zoom: {}'.format(self.mode, self.size, self.zoom)
 
 
         '''
@@ -206,7 +256,7 @@ class EPuckInterface:
         self.args = args
         self.kwargs = kwargs
 
-
+        self._vision_sensor_params = ('RGB', (40, 40), 1, Image.NEAREST)
 
     @not_alive
     def live(self):
@@ -325,6 +375,21 @@ class EPuckInterface:
         pass
 
 
+    '''
+    Métodos para activar/desactivar los leds
+    '''
+    @alive
+    @accepts(object, tuple(range(0, 8)), bool)
+    def _set_led_state(self, index, state):
+        '''
+        Establece el estado actual de un led del robot.
+        :param index: Es el índice del led (en el rango [0, 8))
+        :param state: Es un valor booleano que indicará el nuevo estado del led.
+        :return:
+        '''
+        pass
+
+
 
     '''
     Métodos para muestrar los sensores de proximidad.
@@ -340,18 +405,12 @@ class EPuckInterface:
         '''
         pass
 
-
-
-
-    '''
-    Métodos para muestrear los sensores de visión.
-    '''
     @alive
     @accepts(object, ('RGB', '1', 'L', 'P'), Validators.validate_image_size,
-             (Image.BOX, Image.BILINEAR, Image.BICUBIC, Image.HAMMING, Image.LANCZOS, Image.NEAREST))
-    def _get_vision_sensor_image(self, mode ='RGB', size = (40, 40), resample = Image.NEAREST):
+             (1, 4, 7), (Image.BOX, Image.BILINEAR, Image.BICUBIC, Image.HAMMING, Image.LANCZOS, Image.NEAREST))
+    def _set_vision_sensor_params(self, mode = 'RGB', size = (40, 40), zoom = 1, resample = Image.NEAREST):
         '''
-        Muestrea el sensor de visión.
+        Modifica los parámetros del sensor de visión.
         :param mode: Puede ser el modo de la imágen (definidos por la librería PIL). Puede ser RGB, 1, L, P, ...
         Para el robot físico e-puck, se puede optimizar el rendimiento indicando los modos 1 o L (black and
         white o escala de grises). En estos modos, se obtiene un rate de hasta ocho imágenes por segundo con una
@@ -367,9 +426,18 @@ class EPuckInterface:
         :param resample: Algoritmo de redimensionamiento que se usará en caso de que la imágen no tenga el
         tamaño deseado. Posibles valores: BOX, BILINEAR, BICUBIC, HAMMING, LANCZOS y NEAREST
         Por defecto es NEAREST (PIL.Image.NEAREST)
+        '''
+        self._vision_sensor_params = (mode, size, zoom, resample)
 
-        :return: Devuelve una imágen PIL creada a partir de la información extraída por
-        el sensor.
+    '''
+    Métodos para muestrear los sensores de visión.
+    '''
+    @alive
+    def _get_vision_sensor_image(self):
+        '''
+        Muestra el sensor de visión. Se usan los parámetros para el sensor establecidos mediante el
+        método _set_vision_sensor_params
+        :return: Devuelve una imágen PIL creada a partir de la información extraída por el sensor.
         '''
         pass
 
@@ -389,21 +457,6 @@ class EPuckInterface:
         pass
 
 
-
-
-    '''
-    Métodos para activar/desactivar los leds
-    '''
-    @alive
-    @accepts(object, tuple(range(0, 8)), bool)
-    def _set_led_state(self, index, state):
-        '''
-        Establece el estado actual de un led del robot.
-        :param index: Es el índice del led (en el rango [0, 8))
-        :param state: Es un valor booleano que indicará el nuevo estado del led.
-        :return:
-        '''
-        pass
 
     '''
     Métodos para muestreear el sensor de luz

@@ -37,6 +37,17 @@ class EPuck(EPuckInterface):
 
 
     '''
+    Métodos para activar/desactivar los leds
+    '''
+    def _set_led_state(self, index, state):
+        super()._set_led_state(index, state)
+        # TODO
+        raise NotImplementedError()
+
+
+
+
+    '''
     Implementación del método para muestrar los sensores de proximidad
     '''
 
@@ -48,8 +59,16 @@ class EPuck(EPuckInterface):
     '''
     Implementación del método para muestrear el sensor de visión
     '''
-    def _get_vision_sensor_image(self, mode ='RGB', size = (40, 40), resample = Image.NEAREST):
-        super()._get_vision_sensor_image(mode, size, resample)
+    def _set_vision_sensor_params(self, mode = 'RGB', size = (40, 40), zoom = 1, resample = Image.NEAREST):
+        super()._set_vision_sensor_params(mode, size, zoom, resample)
+
+        # TODO
+        raise NotImplementedError()
+
+    def _get_vision_sensor_image(self):
+        super()._get_vision_sensor_image()
+        mode, size, zoom, resample = self._vision_sensor_params
+        # TODO
         raise NotImplementedError()
 
 
@@ -61,17 +80,9 @@ class EPuck(EPuckInterface):
         # TODO
         raise NotImplementedError()
 
-    '''
-    Métodos para activar/desactivar los leds
-    '''
-    def _set_led_state(self, index, state):
-        super()._set_led_state(index, state)
-        # TODO
-        raise NotImplementedError()
-
 
     '''
-    Método para muestrear el sensor de visión
+    Método para muestrear el sensor de luz
     '''
     def _get_light_sensor(self):
         super()._get_light_sensor()
