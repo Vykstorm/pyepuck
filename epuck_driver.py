@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 #       ePuck.py
 #
@@ -103,7 +101,7 @@ CAM_MODE = {
 # You can use three diferents Zoom in the camera
 CAM_ZOOM = (1, 4, 8)
 
-class ePuck():
+class EPuckDriver:
     """
     This class represent an ePuck object
     """
