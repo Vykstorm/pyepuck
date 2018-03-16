@@ -393,6 +393,18 @@ class EPuckInterface:
         '''
         pass
 
+    '''
+    Métodos para muestreear el sensor de luz
+    '''
+    @alive
+    @accepts(object)
+    def _get_light_sensor(self):
+        '''
+        Muestrea el sensor de luz del robot.
+        :return:
+        '''
+        pass
+
 
     @alive
     def update(self):
