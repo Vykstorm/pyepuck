@@ -91,6 +91,14 @@ class VRepEPuck(EPuckInterface):
         # TODO
         raise NotImplementedError()
 
+    '''
+    Método para muestrear el sensor de visión
+    '''
+    def _get_light_sensor(self):
+        super()._get_light_sensor()
+        # TODO
+        raise NotImplementedError()
+
 
     def _distance_to_ir_measurement(self, distance):
         '''

@@ -173,6 +173,17 @@ class EPuckInterface:
             def __repr__(self):
                 return self.__str__()
 
+        class LightSensor:
+            @property
+            def value(self):
+                return epuck._get_light_sensor()
+
+            def __str__(self):
+                return 'Light sensor. Value: {}'.format(self.value)
+
+            def __repr__(self):
+                return self.__str__()
+
 
         '''
         Constructor de clase. Inicializa la instancia.
@@ -189,6 +200,7 @@ class EPuckInterface:
         self.camera = self.vision_sensor
         self.leds = [Led(index) for index in range(0, 8)]
         self.floor_sensors = [FloorSensor(index) for index in ['left', 'middle', 'right']]
+        self.light_sensor = LightSensor()
 
         self.alive = False
         self.args = args
@@ -389,6 +401,18 @@ class EPuckInterface:
         Establece el estado actual de un led del robot.
         :param index: Es el índice del led (en el rango [0, 8))
         :param state: Es un valor booleano que indicará el nuevo estado del led.
+        :return:
+        '''
+        pass
+
+    '''
+    Métodos para muestreear el sensor de luz
+    '''
+    @alive
+    @accepts(object)
+    def _get_light_sensor(self):
+        '''
+        Muestrea el sensor de luz del robot.
         :return:
         '''
         pass
