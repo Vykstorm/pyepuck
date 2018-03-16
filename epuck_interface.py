@@ -26,6 +26,64 @@ def not_alive(unchecked_method):
     return checked_method
 
 
+
+# Clase auxiliar. Nos permitirá crear propiedades y/o métodos setter/getter en listas que obtendrán info/modificarán
+# todos los items. Por ejemplo, para activar/desactivar todos los sensores de proximidad al mismo tiempo de una
+# forma sencilla como epuck.proximity_sensors.enable = True
+class CustomListFactory:
+    def create(self, *args, **kwargs):
+        class CustomList(list):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            def add_global_getter_method(self, method_name, new_name = None):
+                def getter(self):
+                    result = []
+                    for item in self:
+                        method = getattr(item.__class__, method_name)
+                        ret = method(item)
+                        result.append(ret)
+                    return result
+                getter.__name__ = method_name if new_name is None else new_name
+                setattr(self.__class__, getter.__name__, getter)
+
+            def add_global_setter_method(self, method_name, new_name = None):
+                def setter(self, value):
+                    for item in self:
+                        method = getattr(item.__class__, method_name)
+                        method(item, value)
+                setter.__name__ = method_name if new_name is None else new_name
+                setattr(self.__class__, setter.__name__, setter)
+
+
+            def add_global_property(self, property_name, new_name = None):
+                def getter(self):
+                    result = []
+                    for item in self:
+                        prop = getattr(item.__class__, property_name)
+                        ret = prop.fget(item)
+                        result.append(ret)
+                    return result
+
+                def setter(self, value):
+                    for item in self:
+                        prop = getattr(item.__class__, property_name)
+                        prop.fset(item, value)
+
+                getter.__name__ = setter.__name__ = property_name if new_name is None else new_name
+
+                prop = property(getter)
+                prop = prop.setter(setter)
+                setattr(self.__class__, getter.__name__, prop)
+
+            def __getitem__(self, index):
+                items = super().__getitem__(index)
+                return CustomList(items) if isinstance(items, list) else items
+
+        return CustomList(*args, **kwargs)
+
+
+
 class EPuckInterface:
     '''
     Representa el robot e-puck.
@@ -138,23 +196,27 @@ class EPuckInterface:
 
         class Sensor:
             def __init__(self):
-                self.enabled = False
+                self._enabled = False
 
-            def is_enabled(self):
-                return self.enabled
+            @property
+            def enabled(self):
+                return self._enabled
 
-            def enable(self):
-                self.enabled = True
+            @enabled.setter
+            def enabled(self, flag):
+                if self._enabled ^ flag:
+                    # llamar a método nativo para ctivar / desactivar sensores
+                    # TODO
+                    pass
+                self._enabled = flag
 
-            def disable(self):
-                self.enabled = False
 
             def _get_value(self):
                 raise NotImplementedError()
 
             @property
             def value(self):
-                if not self.is_enabled():
+                if not self.enabled:
                     raise Exception('{} is not enabled. Enable it in order to get sensor data'.format(self.__class__.__name__))
                 return self._get_value()
 
@@ -240,16 +302,25 @@ class EPuckInterface:
         '''
         self.left_motor = LeftMotor()
         self.right_motor = RightMotor()
-        self.motors = Namespace(left = self.left_motor, right = self.right_motor)
-        self.proximity_sensors = [ProximitySensor(index) for index in range(0, 8)]
+        self.motors = CustomListFactory().create([self.left_motor, self.right_motor])
+        self.motors.add_global_property('speed')
+
+        self.leds = CustomListFactory().create([Led(index) for index in range(0, 8)])
+        self.leds.add_global_property('state')
+
+        self.proximity_sensors = CustomListFactory().create([ProximitySensor(index) for index in range(0, 8)])
+        self.proximity_sensors.add_global_property('value', new_name = 'values')
+        self.proximity_sensors.add_global_property('enabled')
         self.prox_sensor15, self.prox_sensor45, self.prox_sensor90 = self.proximity_sensors[0:3]
         self.prox_sensor135, self.prox_sensor225 = self.proximity_sensors[3:5]
         self.prox_sensor270, self.prox_sensor315, self.prox_sensor345 = self.proximity_sensors[5:8]
 
         self.vision_sensor = VisionSensor()
         self.camera = self.vision_sensor
-        self.leds = [Led(index) for index in range(0, 8)]
-        self.floor_sensors = [FloorSensor(index) for index in ['left', 'middle', 'right']]
+
+        self.floor_sensors = CustomListFactory().create([FloorSensor(index) for index in ['left', 'middle', 'right']])
+        self.floor_sensors.add_global_property('value', new_name = 'values')
+        self.floor_sensors.add_global_property('enabled')
         self.light_sensor = LightSensor()
 
         self.alive = False
