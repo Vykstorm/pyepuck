@@ -203,13 +203,14 @@ class EPuckInterface:
                 return self._enabled
 
             @enabled.setter
-            def enabled(self, flag):
-                if self._enabled ^ flag:
-                    # llamar a método nativo para ctivar / desactivar sensores
-                    # TODO
-                    pass
-                self._enabled = flag
+            def enabled(self, new_state):
+                old_state = self._enabled
+                self._enabled = new_state
+                if new_state ^ old_state:
+                    self._enable_state_changed()
 
+            def _enable_state_changed(self):
+                raise NotImplementedError()
 
             def _get_value(self):
                 raise NotImplementedError()
@@ -230,6 +231,9 @@ class EPuckInterface:
                 super().__init__()
                 self.index = index
 
+            def _enable_state_changed(self):
+                epuck._enable_prox_sensor(self.index, self.enabled)
+
             def _get_value(self):
                 return epuck._get_prox_sensor_value(self.index)
 
@@ -243,6 +247,9 @@ class EPuckInterface:
                 super().__init__()
                 self.index = index
 
+            def _enable_state_changed(self):
+                epuck._enable_floor_sensor(self.index, self.enabled)
+
             def _get_value(self):
                 return epuck._get_floor_sensor(self.index)
 
@@ -253,6 +260,9 @@ class EPuckInterface:
         class LightSensor(Sensor):
             def __init__(self):
                 super().__init__()
+
+            def _enable_state_changed(self):
+                epuck._enable_light_sensor(self.enabled)
 
             def _get_value(self):
                 return epuck._get_light_sensor()
@@ -265,6 +275,9 @@ class EPuckInterface:
         class VisionSensor(Sensor):
             def __init__(self):
                 super().__init__()
+
+            def _enable_state_changed(self):
+                epuck._enable_vision_sensor(self.enabled)
 
             def _get_value(self):
                 return epuck._get_vision_sensor_image()
@@ -541,7 +554,9 @@ class EPuckInterface:
         '''
         pass
 
-
+    '''
+    Método para sincronizar la información de los sensores y actualizar los parámetros de los actuadores
+    '''
     @alive
     def update(self):
         '''
@@ -551,4 +566,28 @@ class EPuckInterface:
         parámetro async_update a False en el constructor de clase.
         :return:
         '''
+        pass
+
+
+    '''
+    Métodos para activar/desactivar los sensores
+    '''
+    @alive
+    @accepts(object, tuple(range(0, 8)), bool)
+    def _enable_prox_sensor(self, index, enabled):
+        pass
+
+    @alive
+    @accepts(object, ('left', 'middle', 'right'), bool)
+    def _enable_floor_sensor(self, index, enabled):
+        pass
+
+    @alive
+    @accepts(object, bool)
+    def _enable_vision_sensor(self, enabled):
+        pass
+
+    @alive
+    @accepts(object, bool)
+    def _enable_light_sensor(self, enabled):
         pass

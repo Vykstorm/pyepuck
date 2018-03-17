@@ -1,5 +1,5 @@
 
-from epuck_interface import EPuckInterface, alive
+from epuck_interface import EPuckInterface
 from PIL import Image
 
 class EPuck(EPuckInterface):
@@ -97,3 +97,19 @@ class EPuck(EPuckInterface):
         super().update()
         # TODO
         raise NotImplementedError()
+
+
+    '''
+    Activa / Desactiva sensores
+    '''
+    def _enable_prox_sensor(self, index, enabled):
+        super()._enable_prox_sensor(index, enabled)
+
+    def _enable_floor_sensor(self, index, enabled):
+        super()._enable_floor_sensor(index, enabled)
+
+    def _enable_vision_sensor(self, enabled):
+        super()._enable_vision_sensor(enabled)
+
+    def _enable_light_sensor(self, enabled):
+        super()._enable_light_sensor(enabled)
