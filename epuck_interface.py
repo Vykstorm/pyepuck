@@ -491,7 +491,7 @@ class EPuckInterface:
 
     @alive
     @accepts(object, ('RGB', '1', 'L', 'P'), Validators.validate_image_size,
-             (1, 4, 7), (Image.BOX, Image.BILINEAR, Image.BICUBIC, Image.HAMMING, Image.LANCZOS, Image.NEAREST))
+             (1, 4, 8), (Image.BOX, Image.BILINEAR, Image.BICUBIC, Image.HAMMING, Image.LANCZOS, Image.NEAREST))
     def _set_vision_sensor_params(self, mode = 'RGB', size = (40, 40), zoom = 1, resample = Image.NEAREST):
         '''
         Modifica los parámetros del sensor de visión.
@@ -506,6 +506,8 @@ class EPuckInterface:
         el tamaño de la imágen por limitaciones de hardware, se extaerá la imágen con mayor resolución posible
         y luego se redimensionará al tamaño indicado usando un algoritmo de resampling.
         Por defecto, el tamaño es de 40x40 (tamaño de imágen recomendable para un mayor rendimiento)
+
+        :param zoom: El zoom de la cámara. Puede ser 1/4/8
 
         :param resample: Algoritmo de redimensionamiento que se usará en caso de que la imágen no tenga el
         tamaño deseado. Posibles valores: BOX, BILINEAR, BICUBIC, HAMMING, LANCZOS y NEAREST
