@@ -1,25 +1,36 @@
 
 from epuck_interface import EPuckInterface
 from PIL import Image
+from epuck_driver import EPuckDriver
+from pyvalid.validators import accepts
+from math import pi
 
 class EPuck(EPuckInterface):
     '''
     Robot e-puck físico. Implementa el interfaz EPuckInterface
     '''
-    def __init__(self):
-        super().__init__()
+
+    @accepts(object, str)
+    def __init__(self, address):
+        '''
+        Inicializa la instancia y configura el robot.
+        :param address: Es la dirección MAC del robot con el que se abrirá una conexión bluetooth.
+        '''
+        super().__init__(False, address)
 
 
     '''
     Métodos para inicializar / limpiar los recursos utilizados por el robot
     '''
 
-    def init(self):
-        raise NotImplementedError()
+    def init(self, address):
+        self.handler = EPuckDriver(address = address, debug = False)
+        self.handler.connect()
+
 
     def close(self):
         super().close()
-        raise NotImplementedError()
+        self.handler.disconnect()
 
 
     '''
@@ -28,12 +39,14 @@ class EPuck(EPuckInterface):
 
     def _set_left_motor_speed(self, speed):
         super()._set_left_motor_speed(speed)
-        raise NotImplementedError()
+        # No es necesario hacer nada en este método, los parámetros de los motores
+        # se actualizan en el método update
 
 
     def _set_right_motor_speed(self, speed):
         super()._set_right_motor_speed()
-        raise NotImplementedError()
+        # No es necesario hacer nada en este método, los parámetros de los motores
+        # se actualizan en el método update
 
 
     '''
@@ -41,8 +54,8 @@ class EPuck(EPuckInterface):
     '''
     def _set_led_state(self, index, state):
         super()._set_led_state(index, state)
-        # TODO
-        raise NotImplementedError()
+
+        self.handler.set_led(led_number = index, led_value = 0 if not state else 1)
 
 
 
@@ -53,7 +66,10 @@ class EPuck(EPuckInterface):
 
     def _get_prox_sensor_value(self, index):
         super()._get_prox_sensor_value(index)
-        raise NotImplementedError()
+
+        # Puede que los índices de los sensores no coincidan?
+        values = self.handler.get_proximity()
+        return values[index]
 
 
     '''
@@ -64,6 +80,7 @@ class EPuck(EPuckInterface):
 
         # TODO
         raise NotImplementedError()
+
 
     def _get_vision_sensor_image(self):
         super()._get_vision_sensor_image()
@@ -77,8 +94,9 @@ class EPuck(EPuckInterface):
     '''
     def _get_floor_sensor(self, index):
         super()._get_floor_sensor(index)
-        # TODO
-        raise NotImplementedError()
+
+        values = dict(zip(['left', 'center', 'right'], self.handler.get_floor_sensors()))
+        return values[index]
 
 
     '''
@@ -86,8 +104,9 @@ class EPuck(EPuckInterface):
     '''
     def _get_light_sensor(self):
         super()._get_light_sensor()
-        # TODO
-        raise NotImplementedError()
+
+        return self.handler.get_light_sensor()
+
 
     '''
     Actualiza la información de los sensores y hace efectivos los cambios en los actuadores
@@ -95,8 +114,13 @@ class EPuck(EPuckInterface):
     '''
     def update(self):
         super().update()
-        # TODO
-        raise NotImplementedError()
+
+        # Establecemos la velocidad de los motores.
+        steps_per_radian = .002 * pi
+        self.handler.set_motors_speed(l_motor = self.left_motor.speed * steps_per_radian,
+                                      r_motor = self.right_motor.speed * steps_per_radian)
+
+        self.handler.step()
 
 
     '''
@@ -104,12 +128,28 @@ class EPuck(EPuckInterface):
     '''
     def _enable_prox_sensor(self, index, enabled):
         super()._enable_prox_sensor(index, enabled)
+        if enabled:
+            self.handler.enable('proximity')
+        elif not any(self.proximity_sensors.enabled):
+            self.handler.disable('proximity')
 
     def _enable_floor_sensor(self, index, enabled):
         super()._enable_floor_sensor(index, enabled)
+        if enabled:
+            self.handler.enable('floor')
+        else:
+            self.handler.disable('floor')
 
     def _enable_vision_sensor(self, enabled):
         super()._enable_vision_sensor(enabled)
+        if enabled:
+            self.handler.enable('camera')
+        else:
+            self.handler.disable('camera')
 
     def _enable_light_sensor(self, enabled):
         super()._enable_light_sensor(enabled)
+        if enabled:
+            self.handler.enable('light')
+        else:
+            self.handler.disable('light')
