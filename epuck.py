@@ -64,8 +64,8 @@ class EPuck(EPuckInterface):
     Implementación del método para muestrar los sensores de proximidad
     '''
 
-    def _get_prox_sensor_value(self, index):
-        super()._get_prox_sensor_value(index)
+    def _get_prox_sensor(self, index):
+        super()._get_prox_sensor(index)
 
         # Puede que los índices de los sensores no coincidan?
         values = self.handler.get_proximity()
@@ -82,8 +82,8 @@ class EPuck(EPuckInterface):
         raise NotImplementedError()
 
 
-    def _get_vision_sensor_image(self):
-        super()._get_vision_sensor_image()
+    def _get_vision_sensor(self):
+        super()._get_vision_sensor()
         mode, size, zoom, resample = self._vision_sensor_params
         # TODO
         raise NotImplementedError()

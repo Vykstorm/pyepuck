@@ -71,8 +71,8 @@ class VRepEPuck(EPuckInterface):
     '''
     Implementación del método para muestrar los sensores de proximidad
     '''
-    def _get_prox_sensor_value(self, index):
-        super()._get_prox_sensor_value(index)
+    def _get_prox_sensor(self, index):
+        super()._get_prox_sensor(index)
         value = self.handler.proximity_sensors[index].value
         #return value
         return self._distance_to_ir_measurement(value)
@@ -86,8 +86,8 @@ class VRepEPuck(EPuckInterface):
         super()._set_vision_sensor_params(mode, size, zoom, resample)
 
 
-    def _get_vision_sensor_image(self):
-        super()._get_vision_sensor_image()
+    def _get_vision_sensor(self):
+        super()._get_vision_sensor()
         mode, size, zoom, resample = self._vision_sensor_params
         image = self.handler.camera.get_image(mode = mode, size = size, resample = resample)
         return image
@@ -111,6 +111,35 @@ class VRepEPuck(EPuckInterface):
         # TODO
         raise NotImplementedError()
 
+
+    '''
+    Activación / Desactivación de sensores
+    '''
+    def _enable_prox_sensor(self, index, enabled):
+        '''
+        No es necesario activar los sensores de Vrep, ya que están disponibles por defecto, pero muestreamos el sensor
+        para inicializarlo (la primera medición siempre es más lenta, ya crea es síncrona con respecto
+        servidor). El resto de muestreos son asíncronos.
+        '''
+        super()._enable_prox_sensor(index, enabled)
+        if enabled:
+            self._get_prox_sensor(index)
+
+
+    def _enable_floor_sensor(self, index, enabled):
+        super()._enable_floor_sensor(index, enabled)
+        if enabled:
+            self._get_floor_sensor(index)
+
+    def _enable_vision_sensor(self, enabled):
+        super()._enable_vision_sensor(enabled)
+        if enabled:
+            self._get_vision_sensor()
+
+    def _enable_light_sensor(self, enabled):
+        super()._enable_light_sensor(enabled)
+        if enabled:
+            self._get_light_sensor()
 
 
     #

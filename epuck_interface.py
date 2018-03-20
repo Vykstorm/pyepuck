@@ -235,7 +235,7 @@ class EPuckInterface:
                 epuck._enable_prox_sensor(self.index, self.enabled)
 
             def _get_value(self):
-                return epuck._get_prox_sensor_value(self.index)
+                return epuck._get_prox_sensor(self.index)
 
             def __str__(self):
                 return '{}th proximity sensor. Value: {}'.format(self.index + 1, self.value)
@@ -280,7 +280,7 @@ class EPuckInterface:
                 epuck._enable_vision_sensor(self.enabled)
 
             def _get_value(self):
-                return epuck._get_vision_sensor_image()
+                return epuck._get_vision_sensor()
 
             @property
             def image(self):
@@ -480,7 +480,7 @@ class EPuckInterface:
     '''
     @alive
     @accepts(object, tuple(range(0, 8)))
-    def _get_prox_sensor_value(self, index):
+    def _get_prox_sensor(self, index):
         '''
         Muestrea un sensor de proximidad.
         :param index: Es el índice del sensor de proximidad, 0 para el sensor IR0, 1 para IR1, hasta 7 para
@@ -519,7 +519,7 @@ class EPuckInterface:
     Métodos para muestrear los sensores de visión.
     '''
     @alive
-    def _get_vision_sensor_image(self):
+    def _get_vision_sensor(self):
         '''
         Muestra el sensor de visión. Se usan los parámetros para el sensor establecidos mediante el
         método _set_vision_sensor_params
