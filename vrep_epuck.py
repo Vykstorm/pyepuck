@@ -64,7 +64,7 @@ class VRepEPuck(EPuckInterface):
     def _set_led_state(self, index, state):
         super()._set_led_state(index, state)
         # TODO
-        raise NotImplementedError()
+
 
 
 
@@ -100,7 +100,7 @@ class VRepEPuck(EPuckInterface):
     def _get_floor_sensor(self, index):
         super()._get_floor_sensor(index)
         # TODO
-        raise NotImplementedError()
+
 
 
     '''
@@ -109,7 +109,6 @@ class VRepEPuck(EPuckInterface):
     def _get_light_sensor(self):
         super()._get_light_sensor()
         # TODO
-        raise NotImplementedError()
 
 
     '''

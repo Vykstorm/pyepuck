@@ -412,6 +412,33 @@ class EPuckInterface:
             self.kill()
 
 
+    '''
+    Métodos para inicializar / limpiar los recursos utilizados por el robot
+    '''
+
+
+    def init(self, *args, **kwargs):
+        '''
+        Este método es invocado para inicializar el robot.
+        Se pasa como parametros aquellos indicados en el constructor.
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        raise NotImplementedError()
+
+    @alive
+    def close(self):
+        '''
+        Este método se encarga de limpiar todos los recursos utilizados.
+        :return:
+        '''
+        # Desactivamos los leds y reseteamos la velocidad de los motores
+        self.leds.state = False
+        self.stop()
+
+
+
     @alive
     @accepts(object, Validators.validate_value_in_range(-1, 1))
     def move_forward(self, speed):
@@ -420,12 +447,11 @@ class EPuckInterface:
         delante a la velocidad lineal indicada.
         :param speed: Es un valor normalizado en el rango [-1, 1]
         Cuando este valor sea -1 o 1, la velocidad lineal será la máxima posible, que
-        es aproximadamente 0.1564 m / s. Cuando sea 0, la velocidad lineal será 0.
+        es aproximadamente +-0.128 m / s. Cuando sea 0, la velocidad lineal será 0.
         Si el valor es negativo, el sentido del movimiento será el opuesto.
         '''
         v = speed * epuck_constraints.max_motor_speed
-        rw = epuck_constraints.wheels_radius
-        self.motors.speed = speed * rw
+        self.motors.speed = v
 
     @alive
     @accepts(object, Validators.validate_value_in_range(-1, 1))
@@ -444,7 +470,7 @@ class EPuckInterface:
         Modifica los parámetros de los motores del robot de forma que este rote a una velocidad
         angular específica con respecto al eje indicado (en sentido antihorario)
         :param speed: Es un valor en el rango [-1, 1]. Cuando sea 0, la velocidad angular será 0.
-        Si es 1, la velocidad angular será la máxima posible y se rotará en sentido antihorario.
+        Si es 1 o -1, la velocidad angular será la máxima posible y se rotará en sentido antihorario.
         Si el valor es negativo, se rotará en sentido horario.
 
         :param axis: Es el eje de rotación. Puede ser 'center', 'left', 'right'
@@ -478,7 +504,7 @@ class EPuckInterface:
                 w1 = v1 / rw
 
         self.left_motor.speed = w1
-        self.right_motor_speed = w2
+        self.right_motor.speed = w2
 
 
     @alive
@@ -488,31 +514,6 @@ class EPuckInterface:
         '''
         self.motors.speed = 0
 
-
-    # Métodos a implementar en las subclases
-
-    '''
-    Métodos para inicializar / limpiar los recursos utilizados por el robot
-    '''
-
-
-    def init(self, *args, **kwargs):
-        '''
-        Este método es invocado para inicializar el robot.
-        Se pasa como parametros aquellos indicados en el constructor.
-        :param args:
-        :param kwargs:
-        :return:
-        '''
-        raise NotImplementedError()
-
-    @alive
-    def close(self):
-        '''
-        Este método se encarga de limpiar todos los recursos utilizados.
-        :return:
-        '''
-        pass
 
 
     @alive
