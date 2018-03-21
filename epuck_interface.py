@@ -99,15 +99,6 @@ class EPuckInterface:
         '''
         Clase auxiliar para validar parámetros de algunos métodos de la clase EPuckInterface.
         '''
-        @staticmethod
-        @is_validator
-        def validate_speed(speed):
-            '''
-            Valida el valor para establecer la velocidad de los motores en rads / seg
-            :param speed:
-            :return:
-            '''
-            return abs(speed) <= epuck_constraints.max_motor_speed
 
         @staticmethod
         @is_validator
@@ -119,6 +110,20 @@ class EPuckInterface:
             :return:
             '''
             return isinstance(size, tuple) and len(size) == 2
+
+        @staticmethod
+        def validate_value_in_range(a, b):
+            '''
+            Devuelve un método validador que sirve para comprobar si un valor está en intervalo indicado.
+            :param a: Extremo izquierdo del intervalo (inclusive)
+            :param b: Extremo derecho del intervalo (inclusive)
+            :return:
+            '''
+            @is_validator
+            def validator(value):
+                return value >= a and value <= b
+
+            return validator
 
 
 
@@ -406,6 +411,86 @@ class EPuckInterface:
         if self.is_alive():
             self.kill()
 
+
+    @alive
+    @accepts(object, Validators.validate_value_in_range(-1, 1))
+    def move_forward(self, speed):
+        '''
+        Modifica los parámetros de los motores del robot de forma que este se mueva hacia
+        delante a la velocidad lineal indicada.
+        :param speed: Es un valor normalizado en el rango [-1, 1]
+        Cuando este valor sea -1 o 1, la velocidad lineal será la máxima posible, que
+        es aproximadamente 0.1564 m / s. Cuando sea 0, la velocidad lineal será 0.
+        Si el valor es negativo, el sentido del movimiento será el opuesto.
+        '''
+        v = speed * epuck_constraints.max_motor_speed
+        rw = epuck_constraints.wheels_radius
+        self.motors.speed = speed * rw
+
+    @alive
+    @accepts(object, Validators.validate_value_in_range(-1, 1))
+    def move_backward(self, speed):
+        '''
+        Es igual que move_forward( -speed )
+        :return:
+        '''
+        self.move_forward(-speed)
+
+
+    @alive
+    @accepts(object, Validators.validate_value_in_range(-1, 1), ('center', 'left', 'right'))
+    def rotate(self, speed, axis = 'center'):
+        '''
+        Modifica los parámetros de los motores del robot de forma que este rote a una velocidad
+        angular específica con respecto al eje indicado (en sentido antihorario)
+        :param speed: Es un valor en el rango [-1, 1]. Cuando sea 0, la velocidad angular será 0.
+        Si es 1, la velocidad angular será la máxima posible y se rotará en sentido antihorario.
+        Si el valor es negativo, se rotará en sentido horario.
+
+        :param axis: Es el eje de rotación. Puede ser 'center', 'left', 'right'
+        'center': Rotará con respecto al centro del robot.
+        En este caso, la velocidad angular máxima que puede alcanzarse es ~ +-0.585 rads / s
+        'left': Rotará con respecto a la rueda izquierda.
+        Velocidad angular máxima: ~ +-0.292 rads / s
+        'right: Rotará en torno a la rueda derecha.
+        Velocidad angular máxima: ~ +-0.292 rads / s
+        :return:
+        '''
+        rb = epuck_constraints.body_radius
+        rw = epuck_constraints.wheels_radius
+        w = speed * epuck_constraints.max_motor_speed * rw / rb
+
+        if axis == 'center':
+            v2 = w * rb
+            v1 = -v2
+            w1 = v1 / rw
+            w2 = v2 / rw
+        else:
+            w /= 2
+            if axis == 'left':
+                v2 = 2 * rb * w
+                w1 = 0
+                w2 = v2 / rw
+
+            else:
+                v1 = 2 * rb * w
+                w2 = 0
+                w1 = v1 / rw
+
+        self.left_motor.speed = w1
+        self.right_motor_speed = w2
+
+
+    @alive
+    def stop(self):
+        '''
+        Modifica los parámetros de los motores para que el robot quede parado.
+        '''
+        self.motors.speed = 0
+
+
+    # Métodos a implementar en las subclases
+
     '''
     Métodos para inicializar / limpiar los recursos utilizados por el robot
     '''
@@ -431,7 +516,7 @@ class EPuckInterface:
 
 
     @alive
-    @accepts(object, Validators.validate_speed)
+    @accepts(object, Validators.validate_value_in_range(-epuck_constraints.max_motor_speed, epuck_constraints.max_motor_speed))
     def _set_left_motor_speed(self, speed):
         '''
         Establece la velocidad del motor izquierdo del robot.
@@ -439,13 +524,13 @@ class EPuckInterface:
         de este motor. e.g: epuck.left_motor.speed = 10
 
         :param speed: Velocidad en radianes / segundo
-        Debe estar en el rango [0, epuck_constraints.max_motor_speed]
+        Debe estar en el rango [-epuck_constraints.max_motor_speed, epuck_constraints.max_motor_speed]
         :return:
         '''
         pass
 
     @alive
-    @accepts(object, Validators.validate_speed)
+    @accepts(object, Validators.validate_value_in_range(-epuck_constraints.max_motor_speed, epuck_constraints.max_motor_speed))
     def _set_right_motor_speed(self, speed):
         '''
         Establece la velocidad del motor derecho del robot.
@@ -453,7 +538,7 @@ class EPuckInterface:
         de este motor. e.g: epuck.right_motor.speed = 10
 
         :param speed: Velocidad en radianes / segundo
-        Debe estar en el rango [0, epuck_constraints.max_motor_speed]
+        Debe estar en el rango [-epuck_constraints.max_motor_speed, epuck_constraints.max_motor_speed]
         :return:
         '''
         pass
