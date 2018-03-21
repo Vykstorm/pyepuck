@@ -130,7 +130,7 @@ class EPuck(EPuckInterface):
         super()._enable_prox_sensor(index, enabled)
         if enabled:
             self.handler.enable('proximity')
-        elif not any(self.proximity_sensors.enabled):
+        elif not any(self.prox_sensors.enabled):
             self.handler.disable('proximity')
 
     def _enable_floor_sensor(self, index, enabled):

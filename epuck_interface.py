@@ -326,12 +326,12 @@ class EPuckInterface:
         self.leds = CustomListFactory().create([Led(index) for index in range(0, 8)])
         self.leds.add_global_property('state')
 
-        self.proximity_sensors = CustomListFactory().create([ProximitySensor(index) for index in range(0, 8)])
-        self.proximity_sensors.add_global_property('value', new_name = 'values')
-        self.proximity_sensors.add_global_property('enabled')
-        self.prox_sensor15, self.prox_sensor45, self.prox_sensor90 = self.proximity_sensors[0:3]
-        self.prox_sensor135, self.prox_sensor225 = self.proximity_sensors[3:5]
-        self.prox_sensor270, self.prox_sensor315, self.prox_sensor345 = self.proximity_sensors[5:8]
+        self.prox_sensors = CustomListFactory().create([ProximitySensor(index) for index in range(0, 8)])
+        self.prox_sensors.add_global_property('value', new_name ='values')
+        self.prox_sensors.add_global_property('enabled')
+        self.prox_sensor15, self.prox_sensor45, self.prox_sensor90 = self.prox_sensors[0:3]
+        self.prox_sensor135, self.prox_sensor225 = self.prox_sensors[3:5]
+        self.prox_sensor270, self.prox_sensor315, self.prox_sensor345 = self.prox_sensors[5:8]
 
         self.vision_sensor = VisionSensor()
         self.camera = self.vision_sensor

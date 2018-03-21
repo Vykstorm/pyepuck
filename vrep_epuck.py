@@ -178,7 +178,7 @@ if __name__ == '__main__':
         epuck.right_motor.speed = pi / 2
         sleep(2)
 
-        for prox_sensor in epuck.proximity_sensors:
+        for prox_sensor in epuck.prox_sensors:
             print(prox_sensor)
 
         image = epuck.camera.get_image(mode = 'RGB', size = (400, 400))
