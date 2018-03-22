@@ -152,9 +152,9 @@ class VRepEPuck(EPuckInterface):
         '''
         # TODO
         # Aproximación. Modificar esto ->
-        p = pi * epuck_constraints.wheels_diameter
+        p = .128
         distance = min(distance, p) / p
-        measure = (distance ** (1 / 3))
+        measure = (distance ** (1 / 2))
 
         # Añadimos ruido gaussiano
         measure += random() * .1 - .05
