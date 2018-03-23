@@ -110,6 +110,14 @@ class VRepEPuck(EPuckInterface):
         super()._get_light_sensor()
         # TODO
 
+    '''
+    Método para muestrear el sensor de visión
+    '''
+    def _get_light_sensor(self):
+        super()._get_light_sensor()
+        # TODO
+        raise NotImplementedError()
+
 
     '''
     Activación / Desactivación de sensores

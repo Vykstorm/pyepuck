@@ -645,6 +645,7 @@ class EPuckInterface:
     '''
     Método para sincronizar la información de los sensores y actualizar los parámetros de los actuadores
     '''
+
     @alive
     def update(self):
         '''

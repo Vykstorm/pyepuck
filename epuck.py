@@ -109,6 +109,14 @@ class EPuck(EPuckInterface):
 
 
     '''
+    Método para muestrear el sensor de visión
+    '''
+    def _get_light_sensor(self):
+        super()._get_light_sensor()
+        # TODO
+        raise NotImplementedError()
+
+    '''
     Actualiza la información de los sensores y hace efectivos los cambios en los actuadores
     (motores / leds)
     '''
