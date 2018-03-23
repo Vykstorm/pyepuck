@@ -154,10 +154,10 @@ class VRepEPuck(EPuckInterface):
         # Aproximación. Modificar esto ->
         p = .128
         distance = min(distance, p) / p
-        measure = (distance ** (1 / 2))
+        measure = ((1 - distance) ** (1 / 2))
 
         # Añadimos ruido gaussiano
-        measure += random() * .1 - .05
+        measure += random() * .05 - .0025
 
         measure *= 3000
 
