@@ -341,11 +341,15 @@ class EPuckInterface:
         self.floor_sensors.add_global_property('enabled')
         self.light_sensor = LightSensor()
 
+        self.sensors = CustomListFactory().create(self.prox_sensors + self.floor_sensors + [self.vision_sensor, self.light_sensor])
+        self.sensors.add_global_property('enabled')
+
+        self._vision_sensor_params = ('RGB', (40, 40), 1, Image.NEAREST)
+
         self.alive = False
         self.args = args
         self.kwargs = kwargs
 
-        self._vision_sensor_params = ('RGB', (40, 40), 1, Image.NEAREST)
 
     @not_alive
     def live(self):
