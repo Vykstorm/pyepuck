@@ -8,20 +8,17 @@ Ejemplo que demuestra como modificar los parámetros de los motores del robot e-
 from epuck_controller import EPuckController
 from epuck import EPuck as PhysicalEPuck
 from vrep_epuck import VRepEPuck as VirtualEPuck
-from time import time
 from math import pi
 
 class MotorsExampleController(EPuckController):
     def init(self):
         print('Initializing e-puck controller')
 
-        self.initial_time = time()
 
     def close(self):
         print('Closing e-puck controlller')
 
     def think(self):
-        self.elapsed_time = time() - self.initial_time
         if self.elapsed_time > 16:
             raise StopIteration()
 
