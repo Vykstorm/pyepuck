@@ -4,26 +4,40 @@ from PIL import Image
 from epuck_driver import EPuckDriver
 from pyvalid.validators import accepts
 from math import pi
+from bluetooth import discover_devices as discover_bluetooth_devices
 
 class EPuck(EPuckInterface):
     '''
     Robot e-puck físico. Implementa el interfaz EPuckInterface
     '''
 
-    @accepts(object, str)
-    def __init__(self, address):
+    @accepts(object, (str, int))
+    def __init__(self, address_or_id):
         '''
         Inicializa la instancia y configura el robot.
-        :param address: Es la dirección MAC del robot con el que se abrirá una conexión bluetooth.
+        :param address_or_id: Es la dirección MAC del robot con el que se abrirá una conexión bluetooth o
+        la ID del robot asociada al e-puck.
+        Si se especifica la ID del robot, se supondrá que el dispositivo bluetooth con el nombre ePuck_{ID}
+        está asociado al robot y se intentará abrir una conexión con el mismo. Por ejemplo,
+        si la ID es 250, el dispositivo bluetooth que se intentará buscar tendrá el nombre ePuck_250
         '''
-        super().__init__(False, address)
+        super().__init__(False, address_or_id)
 
 
     '''
     Métodos para inicializar / limpiar los recursos utilizados por el robot
     '''
 
-    def init(self, address):
+    def init(self, address_or_id):
+        def get_address_by_id(id):
+            devices = dict([(name.lower(), address) for address, name in discover_bluetooth_devices(lookup_names = True, lookup_class = False)])
+            name = 'epuck_{}'.format(id)
+            if not id in devices:
+                raise Exception('Bluetooth device not avaliable')
+            address = devices[name]
+            return address
+
+        address = address_or_id if isinstance(address_or_id, str) else get_address_by_id(address_or_id)
         self.handler = EPuckDriver(address = address, debug = False)
         self.handler.connect()
 
