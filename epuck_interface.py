@@ -438,7 +438,6 @@ class EPuckInterface:
         self.stop()
 
 
-
     @alive
     @accepts(object, Validators.validate_value_in_range(-1, 1))
     def move_forward(self, speed):
