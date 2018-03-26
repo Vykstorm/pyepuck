@@ -6,10 +6,14 @@ class EPuckController:
     '''
     Representa un controlador para el robot e-puck.
     '''
-    def __init__(self, epuck):
+    def __init__(self, epuck, steps_per_sec = float('inf')):
         '''
         Inicializa la instancia
         :param epuck: Es una instancia de una subclase de EPuckInterface
+        :param steps_per_sec: Es el número de pasos por segundo o el número de iteraciones por segundo del bucle
+        principal del controlador a ejecutar. Esta cantidad será igual o inferior a este parámetro. Si no se
+        indica ningún valor, por defecto será infinito (float('inf')). En tal caso, se intentará obtener el máximo
+        número de pasos por segundo posibles.
         '''
         self.epuck = epuck
 
@@ -18,6 +22,7 @@ class EPuckController:
 
         # Esta variable configura el número de veces que el bucle principal debe ejecutarse por unidad de tiempo.
         # El número de veces que el bucle principal se ejecutará por segundo es inferior o igual a esta cantidad
+        # (puede ser infinito)
         self.sps = 2
 
         self._think_times = []
@@ -155,4 +160,3 @@ class EPuckController:
         :return:
         '''
         return self._update_time
-    
