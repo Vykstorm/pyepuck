@@ -1,11 +1,14 @@
 
 from time import sleep
 from time import clock
+from pyvalid.validators import accepts
+from epuck_interface import EPuckInterface
 
 class EPuckController:
     '''
     Representa un controlador para el robot e-puck.
     '''
+    @accepts(object, EPuckInterface, lambda x:isinstance(x, (float, int)) and x > 0)
     def __init__(self, epuck, steps_per_sec = float('inf')):
         '''
         Inicializa la instancia
