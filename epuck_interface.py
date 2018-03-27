@@ -311,6 +311,15 @@ class EPuckInterface:
             def set_params(self, *args, **kwargs):
                 epuck._set_vision_sensor_params(*args, **kwargs)
 
+            @property
+            def params(self):
+                return (self.mode, self.size, self.zoom, self.resample)
+
+            @params.setter
+            def params(self, params):
+                self.set_params(*params)
+
+
             def __str__(self):
                 return 'Vision sensor. Mode: {}, Dimensions: {}, Zoom: {}'.format(self.mode, self.size, self.zoom)
 
