@@ -67,7 +67,7 @@ class EPuckStreamer(Thread):
 
 
 
-    def __init__(self, controller, address, port):
+    def __init__(self, controller, address = 'localhost', port = 19998):
         super().__init__()
         self.controller = controller
         self.epuck = self.controller.epuck
