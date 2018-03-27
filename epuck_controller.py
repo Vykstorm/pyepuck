@@ -26,7 +26,7 @@ class EPuckController:
         # Esta variable configura el número de veces que el bucle principal debe ejecutarse por unidad de tiempo.
         # El número de veces que el bucle principal se ejecutará por segundo es inferior o igual a esta cantidad
         # (puede ser infinito)
-        self.sps = 2
+        self.sps = steps_per_sec
 
         self._think_times = []
         self._update_times = []
