@@ -39,7 +39,7 @@ class MotorsExampleController(EPuckController):
 
         elif self.elapsed_time <= 12:
             # También podemos asignar la velocidad para sendos motores con una única instrucción...
-            self.epuck.motors.speed = 2 * pi
+            self.epuck.motors.speeds = 2 * pi
 
 
 if __name__ == '__main__':

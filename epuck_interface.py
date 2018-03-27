@@ -330,10 +330,10 @@ class EPuckInterface:
         self.left_motor = LeftMotor()
         self.right_motor = RightMotor()
         self.motors = CustomListFactory().create([self.left_motor, self.right_motor])
-        self.motors.add_global_property('speed')
+        self.motors.add_global_property('speed', new_name = 'speeds')
 
         self.leds = CustomListFactory().create([Led(index) for index in range(0, 8)])
-        self.leds.add_global_property('state')
+        self.leds.add_global_property('state', new_name = 'states')
 
         self.prox_sensors = CustomListFactory().create([ProximitySensor(index) for index in range(0, 8)])
         self.prox_sensors.add_global_property('value', new_name ='values')
@@ -463,7 +463,7 @@ class EPuckInterface:
         Si el valor es negativo, el sentido del movimiento será el opuesto.
         '''
         v = speed * epuck_constraints.max_motor_speed
-        self.motors.speed = v
+        self.motors.speeds = v
 
     @alive
     @accepts(object, Validators.validate_value_in_range(-1, 1))
@@ -524,7 +524,7 @@ class EPuckInterface:
         '''
         Modifica los parámetros de los motores para que el robot quede parado.
         '''
-        self.motors.speed = 0
+        self.motors.speeds = 0
 
 
 
