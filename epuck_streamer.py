@@ -67,11 +67,10 @@ class EPuckStreamer(Thread):
 
 
 
-
-    def __init__(self, epuck, address, port):
+    def __init__(self, controller, address, port):
         super().__init__()
-
-        self.epuck = epuck
+        self.controller = controller
+        self.epuck = self.controller.epuck
         self.address = address
         self.port = port
 
@@ -152,7 +151,13 @@ class EPuckStreamer(Thread):
 
             # Información de actuadores
             'leds' : self.epuck.leds.states,
-            'motors' : self.epuck.motors.speeds
+            'motors' : self.epuck.motors.speeds,
+
+            # Información del controlador
+            'elapsed_time' : self.controller.elapsed_time,
+            'think_time' : self.controller.think_time,
+            'update_time' : self.controller.update_time,
+            'steps_per_second' : self.controller.steps_per_second
         }
 
         data = json.dumps(data).encode()
