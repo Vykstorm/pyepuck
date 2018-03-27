@@ -3,13 +3,14 @@ from time import sleep
 from time import clock
 from pyvalid.validators import accepts
 from epuck_interface import EPuckInterface
+from epuck_streamer import EPuckStreamer
 
 class EPuckController:
     '''
     Representa un controlador para el robot e-puck.
     '''
     @accepts(object, EPuckInterface, lambda x:isinstance(x, (float, int)) and x > 0)
-    def __init__(self, epuck, steps_per_sec = float('inf')):
+    def __init__(self, epuck, steps_per_sec = float('inf'), enable_streaming = False, stream_port = 19998):
         '''
         Inicializa la instancia
         :param epuck: Es una instancia de una subclase de EPuckInterface
@@ -17,7 +18,13 @@ class EPuckController:
         principal del controlador a ejecutar. Esta cantidad será igual o inferior a este parámetro. Si no se
         indica ningún valor, por defecto será infinito (float('inf')). En tal caso, se intentará obtener el máximo
         número de pasos por segundo posibles.
+        :param enable_streaming: Cuando se establece a True, se creará un servidor TCP con el puerto indicado
+        al cual se podrán conectar aplicaciones externas para obtener información de los sensores y actuadores.
+        Por defecto este parámetro es False.
+        :param stream_port: Solo se usa cuando el parámetro enable_streaming es True. Indica el puerto a utilizar
+        para crear el servidor TCP
         '''
+
         self.epuck = epuck
 
         # Esta variable medirá el tiempo que lleva activa la simulación (se actualiza en cada iteración del bucle)
@@ -32,6 +39,8 @@ class EPuckController:
         self._update_times = []
         self._think_time = 0
         self._update_time = 0
+
+        self.streamer = EPuckStreamer(self, address = 'localhost', port = stream_port) if enable_streaming else None
 
     def run(self):
         '''
@@ -92,6 +101,9 @@ class EPuckController:
             self._update_times.pop(0)
         self._update_time = sum(self._update_times) / 3
 
+
+        if not self.streamer is None:
+            self.streamer.broadcast()
 
     def init(self):
         '''
