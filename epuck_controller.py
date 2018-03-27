@@ -34,6 +34,7 @@ class EPuckController:
         # El número de veces que el bucle principal se ejecutará por segundo es inferior o igual a esta cantidad
         # (puede ser infinito)
         self.sps = steps_per_sec
+        self.steps_per_second = self.sps
 
         self._think_times = []
         self._update_times = []
@@ -100,7 +101,6 @@ class EPuckController:
         if len(self._update_times) > 3:
             self._update_times.pop(0)
         self._update_time = sum(self._update_times) / 3
-
 
         if not self.streamer is None:
             self.streamer.broadcast()
