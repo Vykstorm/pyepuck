@@ -139,13 +139,13 @@ class EPuckStreamer(Thread):
             return [get_sensor_data(sensor) for sensor in sensors]
 
         def get_vision_sensor_data():
-            return self.epuck.vision_sensor.value.tobytes() if self.epuck.vision_sensor.enabled else False
+            return b64encode(self.epuck.vision_sensor.value.tobytes()).decode() if self.epuck.vision_sensor.enabled else False
 
         data = {
             # Información de sensores
             'prox_sensors' : get_sensors_data(self.epuck.prox_sensors),
             'floor_sensors' : get_sensors_data(self.epuck.floor_sensors),
-            'vision_sensor' : b64encode(get_vision_sensor_data()).decode(),
+            'vision_sensor' : get_vision_sensor_data(),
             'vision_sensor_params': self.epuck.vision_sensor.params,
             'light_sensor' : get_sensor_data(self.epuck.light_sensor),
 
