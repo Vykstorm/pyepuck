@@ -33,13 +33,14 @@ class EPuckController:
         # Esta variable configura el número de veces que el bucle principal debe ejecutarse por unidad de tiempo.
         # El número de veces que el bucle principal se ejecutará por segundo es inferior o igual a esta cantidad
         # (puede ser infinito)
-        self.sps = steps_per_sec
-        self.steps_per_second = self.sps
+        self._sps = steps_per_sec
 
         self._think_times = []
         self._update_times = []
+        self._step_times = []
         self._think_time = 0
         self._update_time = 0
+        self._step_time = float('inf')
 
         self.streamer = EPuckStreamer(self, address = 'localhost', port = stream_port) if enable_streaming else None
 
@@ -58,9 +59,14 @@ class EPuckController:
                     self.step()
                     t1 = clock()
                     step_time = t1 - t0
-                    inv_sps = 1 / self.sps
+                    inv_sps = 1 / self._sps
                     if step_time < inv_sps:
                         sleep(inv_sps)
+
+                    self._step_times.append(step_time)
+                    if len(self._step_times) > 3:
+                        self._step_times.pop(0)
+                    self._step_time = sum(self._step_times) / len(self._step_times)
 
                     self._elapsed_time += inv_sps
             except StopIteration:
@@ -175,3 +181,12 @@ class EPuckController:
         :return:
         '''
         return self._update_time
+
+    @property
+    def steps_per_second(self):
+        '''
+        Esta propiedad devuelve una estimación del número de veces que el bucle principal del controlador se
+        ejecuta por segundo.
+        :return:
+        '''
+        return 1 / self._step_time
