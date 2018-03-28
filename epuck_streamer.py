@@ -4,10 +4,11 @@ from select import select
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from time import sleep
 import json
-from base64 import b64encode
 import zlib
 import hashlib
 import struct
+from io import BytesIO
+from base64 import b64encode
 
 class EPuckStreamer(Thread):
     '''
@@ -139,7 +140,13 @@ class EPuckStreamer(Thread):
             return [get_sensor_data(sensor) for sensor in sensors]
 
         def get_vision_sensor_data():
-            return b64encode(self.epuck.vision_sensor.value.tobytes()).decode() if self.epuck.vision_sensor.enabled else False
+            if not self.epuck.vision_sensor.enabled:
+                return False
+            output = BytesIO()
+            with output:
+                self.epuck.vision_sensor.value.save(output, format = 'jpeg')
+                data = b64encode(output.getvalue()).decode()
+                return data
 
         data = {
             # Información de sensores
