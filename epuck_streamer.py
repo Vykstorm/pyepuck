@@ -9,6 +9,7 @@ import hashlib
 import struct
 from io import BytesIO
 from base64 import b64encode
+from PIL import Image
 
 class EPuckStreamer(Thread):
     '''
@@ -144,7 +145,8 @@ class EPuckStreamer(Thread):
                 return False
             output = BytesIO()
             with output:
-                self.epuck.vision_sensor.value.save(output, format = 'jpeg')
+                image = self.epuck.vision_sensor.value.transpose(Image.FLIP_TOP_BOTTOM)
+                image.save(output, format = 'jpeg')
                 data = b64encode(output.getvalue()).decode()
                 return data
 
