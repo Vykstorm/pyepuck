@@ -24,7 +24,6 @@ class BraitenbergController(EPuckController):
     def init(self):
         print('Initializing e-puck controller')
         self.epuck.prox_sensors.enabled = True
-        self.epuck.vision_sensor.enabled = True
 
     def close(self):
         print('Closing e-puck controlller')
