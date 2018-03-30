@@ -72,7 +72,7 @@ class EPuckController:
             except StopIteration:
                 pass
             finally:
-                self.close()
+                return self.close()
 
     def step(self):
         '''
