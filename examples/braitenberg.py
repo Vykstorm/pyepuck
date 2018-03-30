@@ -14,17 +14,17 @@ from math import pi
 
 
 class BraitenbergController(EPuckController):
-    def __init__(self, epuck):
-        super().__init__(epuck)
+    def __init__(self, epuck, *args, **kwargs):
+        super().__init__(epuck, *args, **kwargs)
         self.weights = np.array(
             ((150, -35), (100, -15), (80, -10), (-10, -10),
              (-10, -10), (-10, 80), (-30, 100), (-20, 150)),
-            dtype = np.float64) * 2
+            dtype = np.float64)
 
     def init(self):
         print('Initializing e-puck controller')
         self.epuck.prox_sensors.enabled = True
-
+        self.epuck.vision_sensor.enabled = True
 
     def close(self):
         print('Closing e-puck controlller')
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     epuck = VirtualEPuck(address = '127.0.0.1:19997')
     # epuck = PhysicalEPuck()
 
-    controller = BraitenbergController(epuck)
+    controller = BraitenbergController(epuck, enable_streaming = True)
     controller.run()

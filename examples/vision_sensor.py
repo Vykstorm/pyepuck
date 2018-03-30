@@ -45,5 +45,5 @@ if __name__ == '__main__':
     epuck = VirtualEPuck(address = '127.0.0.1:19997')
     # epuck = PhysicalEPuck()
 
-    controller = VisionSensorExampleController(epuck)
+    controller = VisionSensorExampleController(epuck, enable_streaming = True)
     controller.run()

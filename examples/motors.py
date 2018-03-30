@@ -52,5 +52,5 @@ if __name__ == '__main__':
     epuck = VirtualEPuck(address = '127.0.0.1:19997')
     # epuck = PhysicalEPuck()
 
-    controller = MotorsExampleController(epuck)
+    controller = MotorsExampleController(epuck, enable_streaming = True)
     controller.run()
