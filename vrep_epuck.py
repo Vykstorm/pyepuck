@@ -162,7 +162,7 @@ class VRepEPuck(EPuckInterface):
 
         measure *= 3000
 
-        return measure
+        return max(measure, 0)
 
 
 
