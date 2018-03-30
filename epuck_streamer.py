@@ -111,7 +111,6 @@ class EPuckStreamer(Thread):
                     client_socket, address = self.server_socket.accept()
                     client = self.Client(self, client_socket)
                     clients.append(client)
-                    print('Connection opened from: {}'.format(address))
 
                 sleep(.05)
             for client in clients:
