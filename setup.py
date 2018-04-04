@@ -12,6 +12,6 @@ setup(
     license = 'MIT',
     zip_safe = False,
     packages = [''],
-    install_requires = ['numpy', 'Pillow', 'PyBluez'],
+    install_requires = ['numpy', 'Pillow', 'PyBluez', 'scipy'],
     include_package_data = True
 )
